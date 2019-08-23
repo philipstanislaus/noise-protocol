@@ -3,7 +3,7 @@ var assert = require('nanoassert')
 var hmacSHA256 = require('crypto-js/hmac-sha256')
 var dh = require('./dh')
 
-var HASHLEN = 64
+var HASHLEN = 32
 var BLOCKLEN = 64
 
 module.exports = {
@@ -20,8 +20,14 @@ function hash (out, data) {
   sodium.crypto_generichash_batch(out, data)
 }
 
+/**
+ * @param {Buffer} out
+ * @param {{ toString: () => string | CryptoJS.WordArray; }} key
+ * @param {Buffer[] | CryptoJS.LibWordArray} data
+ */
 function hmac (out, key, data) {
-  out = hmacSHA256(data, key.toString())
+  const res = hmacSHA256(data.toString(), key.toString())
+  out.set(Buffer.from(res.toString(), 'hex'))
 }
 
 var TempKey = sodium.sodium_malloc(HASHLEN)
